@@ -21,34 +21,42 @@ def getEccentricity(mu):
 		return 99999
 	return (mu['m20'] + mu['m02'] + bigSqrt) / (mu['m20']+mu['m02']-bigSqrt)
 
-def extract_faces(image):
-	lab_iamge = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
-	image_blur = cv2.blur(image, (20,20))
+def extract_faces(image):	
+	image_blur = cv2.medianBlur(image, 15)
 	display_image(image_blur)
 
 	#Run through a high pass filter first
 	kernel = np.array([[0,1,0],[1,-4,1],[0,1,0]])
-	image_hp = cv2.filter2D(image_blur, -1, kernel)
-	image_gray = cv2.cvtColor(image_hp, cv2.COLOR_BGR2GRAY) * 10
-	ret, image_thresh = cv2.threshold(image_gray,20,200,cv2.THRESH_BINARY)
-	#dial_kernel = np.ones((2,2), np.uint8)
-	#edges = cv2.Canny(image, 300, 350)
-	#edges = cv2.dilate(edges, dial_kernel, iterations = 2)
+	image_hp = cv2.filter2D(image_blur, -1, kernel) * 10
+	display_image(image_hp)
+	
+	#Convert it to grayscale
+	image_gray = cv2.cvtColor(image_hp, cv2.COLOR_BGR2GRAY) 
+	display_image(image_gray)
+	ret, image_thresh = cv2.threshold(image_gray,30,200,cv2.THRESH_BINARY)
+
+	opening_kernel = np.ones((1,1), np.uint8)
+	image_thresh = cv2.morphologyEx(image_thresh, cv2.MORPH_OPEN, opening_kernel)
 	display_image(image_thresh)
-	contours, hierarchy = cv2.findContours(image_thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+	iso_kernel = np.array([[0,1,0],[1,0,1],[0,1,0]], np.uint8)
+	image_thresh = cv2.filter2D(image_thresh, -1, iso_kernel)
+	display_image(image_thresh)
+
+	contours, hierarchy = cv2.findContours(image_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 	con_list = []
 	print "number of contours: %d" % len(contours)
 	for cnt in contours:
 		moment = cv2.moments(cnt)
 		ecc = getEccentricity(moment)
 
-		approx = cv2.approxPolyDP(cnt, 0.08*cv2.arcLength(cnt, True), True)
+		approx = cv2.approxPolyDP(cnt, 0.02*cv2.arcLength(cnt, True), True)
 		#print "ecc value %d" % ecc
 		# print "number of approx_point %d" % len(approx)
-		if(len(approx) == 4 ):
+		if(cv2.contourArea(cnt) > 50):
 		#if(ecc > 10000):
 			con_list.append(cnt)
-		
+
 	return con_list
 
 def display_image(image):
@@ -58,11 +66,13 @@ def display_image(image):
 
 def test():
 	image = cv2.imread('../data/mix_cube.JPG')
-	con_list = extract_faces(image)
+	image_resized = cv2.resize(image, None, fx=0.5, fy=0.5)
+
+	con_list = extract_faces(image_resized)
 	print "number of square contours: %d" % len(con_list)
-	cv2.drawContours(image, con_list, -1, (0,255,0), 1)
+	cv2.drawContours(image_resized, con_list, -1, (0,255,0), 1)
 	cv2.namedWindow('cube', cv2.WINDOW_NORMAL)
-	cv2.imshow('cube', image)
+	cv2.imshow('cube', image_resized)
 	cv2.waitKey(0)
 
 if __name__ == "__main__":

@@ -126,9 +126,9 @@ def cubetsr(robot, rubis_cube, r1 = 0, r2 = 0, p1 = 0, p2 = 0, y1 = 0, y2 = 0, p
                         [0., 0., 0., 1.]])
 
     Bw = np.zeros((6,2))
-    Bw[0,:] = [-0.07, -0.06]
-    Bw[1,:] = [-0.01, -0.01]
-    Bw[2,:] = [0.02, 0.04]  # Allow a little vertical movement
+    Bw[0,:] = [0.0, 0.0]
+    Bw[1,:] = [0.0, 0.0]
+    Bw[2,:] = [0, 0.02]  # Allow a little vertical movement
     Bw[3,:] = [r1, r2]
     Bw[4,:] = [p1, p2]  # Allow any orientation
     Bw[5,:] = [y1, y2]
