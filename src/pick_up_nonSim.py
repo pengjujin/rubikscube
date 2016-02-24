@@ -36,7 +36,8 @@ ap_detect = ApriltagsModule(marker_topic='/apriltags_kinect2/marker_array',
                               kinbody_path=FindCatkinResource('pr_ordata',
                                                               'data/objects'),
                               destination_frame='/herb_base',
-                              detection_frame='/head/kinect2_rgb_optical_frame',			      reference_link=robot.GetLink('/herb_base'))
+                              detection_frame='/head/kinect2_rgb_optical_frame',			      
+                              reference_link=robot.GetLink('/herb_base'))
 
 objs = ap_detect.DetectObjects(robot)
 table = objs[0]

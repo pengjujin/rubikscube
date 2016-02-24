@@ -23,7 +23,7 @@ else:
 	print objects_path
 	objects_path = objects_path[0]
 
-env, robot = herbpy.initialize(sim=True, attach_viewer='rviz')
+env, robot = herbpy.initialize(sim=True, attach_viewer='rviz',segway_sim=True)
 
 #Add the table
 table_file = os.path.join(objects_path, 'table.kinbody.xml')

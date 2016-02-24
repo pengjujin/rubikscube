@@ -2,6 +2,11 @@ import cv2
 import numpy as np
 import math
 
+import rospy
+from std_msgs.msg import String
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
+
 W = 0
 R = 1
 Y = 2
@@ -22,7 +27,7 @@ def getEccentricity(mu):
 	return (mu['m20'] + mu['m02'] + bigSqrt) / (mu['m20']+mu['m02']-bigSqrt)
 
 def extract_faces(image):	
-	image_blur = cv2.medianBlur(image, 15)
+	image_blur = cv2.medianBlur(image, 5)
 	display_image(image_blur)
 
 	#Run through a high pass filter first
@@ -39,9 +44,9 @@ def extract_faces(image):
 	image_thresh = cv2.morphologyEx(image_thresh, cv2.MORPH_OPEN, opening_kernel)
 	display_image(image_thresh)
 
-	iso_kernel = np.array([[0,1,0],[1,0,1],[0,1,0]], np.uint8)
-	image_thresh = cv2.filter2D(image_thresh, -1, iso_kernel)
-	display_image(image_thresh)
+	#iso_kernel = np.array([[0,1,0],[1,0,1],[0,1,0]], np.uint8)
+	#image_thresh = cv2.filter2D(image_thresh, -1, iso_kernel)
+	#display_image(image_thresh)
 
 	contours, hierarchy = cv2.findContours(image_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 	con_list = []
@@ -59,15 +64,26 @@ def extract_faces(image):
 
 	return con_list
 
+def extract_tag(image):
+
+
 def display_image(image):
 	cv2.namedWindow('test', cv2.WINDOW_NORMAL)
 	cv2.imshow('test', image)
 	cv2.waitKey(0)
 
-def test():
-	image = cv2.imread('../data/mix_cube.JPG')
-	image_resized = cv2.resize(image, None, fx=0.5, fy=0.5)
+def talker(image):
+	image_pub = rospy.Publisher('cube_test', Image)
+	try:
+		image_pub.publish(CvBridge().cv2_to_imgmsg(image,"bgr8"))
+	except CvBridgeError as e:
+		print(e)
 
+#apriltag callback
+def callback(self, data):
+
+def process(image):
+	image_resized = cv2.resize(image, None, fx=1, fy=1)
 	con_list = extract_faces(image_resized)
 	print "number of square contours: %d" % len(con_list)
 	cv2.drawContours(image_resized, con_list, -1, (0,255,0), 1)
@@ -75,5 +91,14 @@ def test():
 	cv2.imshow('cube', image_resized)
 	cv2.waitKey(0)
 
+def main(args):
+	image = cv2.imread('../data/data1.jpg')
+	rospy.init_node('image_converter', anonymous=True)
+	talker(image)
+	try:
+		rospy.spin()
+	except KeyboardInterrupt:
+		print ("Shutting donw")
+
 if __name__ == "__main__":
-	test()
+	main(sys.argv)
