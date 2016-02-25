@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import math
-
+import sys
 import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
@@ -64,23 +64,14 @@ def extract_faces(image):
 
 	return con_list
 
-def extract_tag(image):
-
 
 def display_image(image):
 	cv2.namedWindow('test', cv2.WINDOW_NORMAL)
 	cv2.imshow('test', image)
 	cv2.waitKey(0)
 
-def talker(image):
-	image_pub = rospy.Publisher('cube_test', Image)
-	try:
-		image_pub.publish(CvBridge().cv2_to_imgmsg(image,"bgr8"))
-	except CvBridgeError as e:
-		print(e)
-
 #apriltag callback
-def callback(self, data):
+#def callback(self, data):
 
 def process(image):
 	image_resized = cv2.resize(image, None, fx=1, fy=1)
@@ -93,8 +84,7 @@ def process(image):
 
 def main(args):
 	image = cv2.imread('../data/data1.jpg')
-	rospy.init_node('image_converter', anonymous=True)
-	talker(image)
+	rospy.init_node('cube_perception', anonymous=True)
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:
