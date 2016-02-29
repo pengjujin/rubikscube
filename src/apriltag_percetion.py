@@ -14,6 +14,7 @@ def display_image(image):
 	cv2.namedWindow('test', cv2.WINDOW_NORMAL)
 	cv2.imshow('test', image)
 	cv2.waitKey(1)
+	
 class tag_tester:
 	def __init__(self,
 				 image_topic = '/kinect2/hd/image_color'):

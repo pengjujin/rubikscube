@@ -83,12 +83,8 @@ def process(image):
 	cv2.waitKey(0)
 
 def main(args):
-	image = cv2.imread('../data/data1.jpg')
-	rospy.init_node('cube_perception', anonymous=True)
-	try:
-		rospy.spin()
-	except KeyboardInterrupt:
-		print ("Shutting donw")
+	
+
 
 if __name__ == "__main__":
 	main(sys.argv)

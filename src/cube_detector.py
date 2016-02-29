@@ -14,7 +14,8 @@ class cube_detector(object):
 				 env,
 				 marker_number, 
 				 marker_topic = '/apriltags/marker_array', 
-				 camera_topic = '/kinect2/hd/camera_info'):
+				 camera_topic = '/kinect2/hd/camera_info',
+				 rgb_topic = '/kinect2/hd/image_color'):
 		# try: 
 		# 	rospy.init_node('cube_detector', anonymous=True)
 		# except rospy.exception.ROSException:
@@ -23,6 +24,7 @@ class cube_detector(object):
 		self.marker_number = marker_number
 		self.marker_topic = marker_topic
 		self.camera_topic = camera_topic
+		self.rgb_topic = rgb_topic
 
 	def detect(self, timeout=10):
 		marker_message = rospy.wait_for_message(self.marker_topic, MarkerArray, timeout=timeout)
@@ -47,6 +49,18 @@ class cube_detector(object):
 				camera_matrix = np.dot(camera_intrinsics, marker_pose)
 				print camera_matrix		
 		return camera_matrix
+
+	def extract_face_colors(self, tiemout=10):
+		camera_matrix = self.detect()
+		image = rospy.wait_for_message(self.rgb_topic, Image, timeout=timeout)
+		#extrac the 8 faces not including the center face
+		sd = 0.06
+		for i in range(-1,2):
+			for j in range(-1,2):
+				pt = np.array([[i*sd],[j*sd],[0],[1]])
+				pix_pt = np.dot(camera_matrx, pt)
+				color = sample_pix()
+# TesterMain
 
 def main():
 	detector = cube_detector(None, 585)
